@@ -1,0 +1,46 @@
+{
+  "name": "file-renamer-app",
+  "version": "0.0.1",
+  "description": "Organizes files based on the inside contents",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "pack:win": "electron-builder build --win"
+  },
+  "author": "Bibek K C <bibekyess@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "fs-extra": "^11.2.0",
+    "path": "^0.12.7",
+    "pdf-parse": "^1.1.1"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.bibekyess.file-renamer",
+    "productName": "ReNamify",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "logo.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "ReNamify",
+      "uninstallDisplayName": "ReNamify",
+      "artifactName": "ReNamify-${version}-installer.${ext}",
+      "deleteAppDataOnUninstall": true,
+      "displayLanguageSelector": true
+    }    
+  }
+}

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ReNameify</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 0;
+        }
+        #fileList {
+            margin-top: 20px;
+        }
+        .file-item {
+            margin: 5px 0;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>ReNameify</h1>
+    <h3>Rename your Files based on its Content</h3>
+    <p>Select a directory and organize all your files with a context-aware file-names. It is saved under <b>renamed_files</b> under the selected directory</p>
+    <button id="selectDir">Select Directory</button>
+    <button id="processFiles">Process Files</button>
+    <div id="fileList"></div>
+    <script src="renderer.js"></script>
+</body>
+</html>
