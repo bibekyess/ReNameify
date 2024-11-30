@@ -85,7 +85,8 @@ ipcMain.handle('process-files', async (event, dirPath) => {
 
             if (stats.isFile()) {
                 try {
-                    let firstLine = '';
+                    let nextLine = '';
+
                     const fileExt = path.extname(file).toLowerCase();
 
                     if (fileExt === '.pdf') {
@@ -103,40 +104,34 @@ ipcMain.handle('process-files', async (event, dirPath) => {
                         extractedText = pdfData.text
                         
                         console.log(extractedText)
-                        // Get all lines and find the first non-empty one
-                        const lines = extractedText.split('\n')
-                                           .map(line => line.trim())
-                                           .filter(line => line.length > 0);
-                        
-                        // Find first valid line
-                        firstLine = '';
-                        for (const line of lines) {
-                            if (isValidLine(line)) {
-                                firstLine = line.substring(0, 100); // Get first 100 characters
+
+                        // Split the text into lines
+                        const lines = extractedText.split('\n');
+
+                        for (let i = 0; i < lines.length; i++) {
+                            if (lines[i].includes('STATEMENT OF ACCOUNT SUMMARY')) {
+                                nextLine = lines[i + 1].trim();
                                 break;
                             }
                         }
 
                     } else {
                         const content = await fs.readFile(filePath, 'utf8');
-                        const lines = content.split('\n')
-                                           .map(line => line.trim())
-                                           .filter(line => line.length > 0);
-                        // Find first valid line
-                        firstLine = '';
-                        for (const line of lines) {
-                            if (isValidLine(line)) {
-                                firstLine = line.substring(0, 100); // Get first 100 characters
+                        const lines = extractedText.split('\n');
+
+                        let nextLine = '';
+                        for (let i = 0; i < lines.length; i++) {
+                            if (lines[i].includes('STATEMENT OF ACCOUNT SUMMARY')) {
+                                nextLine = lines[i + 1].trim();
                                 break;
                             }
                         }
-
                     }
 
                     let newFileName;
-                    if (firstLine && firstLine.length > 0) {
+                    if (nextLine && nextLine.length > 0) {
                         // Create safe filename from first non-empty line
-                        newFileName = firstLine
+                        newFileName = nextLine
                             .replace(/[^a-z0-9가-힣]/gi, '_')
                             + fileExt;
                     } else {
@@ -160,7 +155,7 @@ ipcMain.handle('process-files', async (event, dirPath) => {
                         originalName: file,
                         newName: newFileName,
                         success: true,
-                        noTextFound: !firstLine
+                        noTextFound: !nextLine
                     });
                 } catch (err) {
                     // Handle PDF parsing errors (common with scanned PDFs)
