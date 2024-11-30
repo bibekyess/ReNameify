@@ -1,6 +1,6 @@
 {
   "name": "file-renamer-app",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Organizes files based on the inside contents",
   "main": "main.js",
   "scripts": {

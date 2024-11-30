@@ -1,34 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>ReNameify</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        button {
-            padding: 10px 20px;
-            margin: 10px 0;
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c3e50;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .header h3 {
+            color: #7f8c8d;
+            font-weight: 300;
+        }
+        .description {
+            background-color: #ecf0f1;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn:hover {
+            background-color: #2980b9;
         }
         #fileList {
-            margin-top: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
         }
         .file-item {
-            margin: 5px 0;
-            padding: 10px;
-            background: #f0f0f0;
-            border-radius: 4px;
+            background-color: #f8f9fa;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #2ecc71;
+        }
+        .file-item:hover {
+            background-color: #f1f3f4;
         }
     </style>
 </head>
 <body>
-    <h1>ReNameify</h1>
-    <h3>Rename your Files based on its Content</h3>
-    <p>Select a directory and organize all your files with a context-aware file-names. It is saved under <b>renamed_files</b> under the selected directory</p>
-    <button id="selectDir">Select Directory</button>
-    <button id="processFiles">Process Files</button>
-    <div id="fileList"></div>
+    <div class="container">
+        <div class="header">
+            <h1>ReNameify</h1>
+            <h3>Intelligent File Renaming Utility</h3>
+        </div>
+        
+        <div class="description">
+            <p>Select a directory and organize your files with context-aware file names. 
+            Renamed files will be saved under <strong>renamed_files</strong> in the selected directory.</p>
+        </div>
+        
+        <div class="btn-group">
+            <button id="selectDir" class="btn">Select Directory</button>
+            <button id="processFiles" class="btn">Process Files</button>
+        </div>
+        
+        <div id="fileList"></div>
+    </div>
+    
     <script src="renderer.js"></script>
 </body>
 </html>
