@@ -75,12 +75,40 @@
             border-radius: 6px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            word-wrap: break-word;
             border-left: 4px solid #2ecc71;
+            line-height: 1.5;
         }
-        .file-item:hover {
+        .file-item-fail {
+            background-color: #f8f9fa;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: column;
+            word-wrap: break-word;
+            border-left: 4px solid red;
+        }        
+        .file-item:hover .file-item-fail:hover {
             background-color: #f1f3f4;
         }
+        .status-success {
+            color: #2ecc71; /* Green */
+            font-weight: 600;
+        }
+
+        .status-warning {
+            color: #e74c3c; /* Red */
+            font-weight: 600;
+        }
+
+        .status-failed {
+            color: #e67e22; /* Orange */
+            font-weight: 600;
+        }
+
     </style>
 </head>
 <body>

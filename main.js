@@ -3,12 +3,6 @@ const path = require('path');
 const fs = require('fs-extra');
 const pdfParse = require('pdf-parse');
 
-// import { app, BrowserWindow, ipcMain, dialog } from 'electron';
-// import path from 'path';
-// import fs from 'fs-extra';
-// import * as mupdfjs from 'mupdf/mupdfjs';
-// console.log("Encoding:", process.stdout.getEncoding());
-
 process.stdout.setDefaultEncoding('utf-8');
 
 let mainWindow;
@@ -18,6 +12,10 @@ function createWindow() {
         icon: path.join(__dirname, 'logo.png'),
         width: 800,
         height: 600,
+        resizable: true,
+        minWidth: 485, // Setting initial minimum width
+        minHeight: 600, // Setting initial minimum height
+
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false
@@ -25,6 +23,11 @@ function createWindow() {
     });
 
     mainWindow.loadFile('index.html');
+    // mainWindow.on('resize', () => {
+    //     const { width, height } = mainWindow.getBounds();
+    //     console.log(`Current window dimensions: ${width}x${height}`);
+    // });
+
 }
 
 app.whenReady().then(createWindow);
@@ -41,9 +44,14 @@ app.on('activate', () => {
     }
 });
 
+
 ipcMain.handle('select-directory', async () => {
     const result = await dialog.showOpenDialog(mainWindow, {
-        properties: ['openDirectory']
+        properties: ['openDirectory'],
+        // filters: [
+        //     { name: 'All Files', extensions: ['pdf'] }
+        // ]
+        // filters don't work with opendirectory
     });
     return result.filePaths;
 });
@@ -54,7 +62,14 @@ function isValidLine(line) {
     if (!line || line.length === 0) return false;
 
     // Skip if line is too short (less than 5 characters)
-    if (line.length < 5) return false;
+    // Or line is too long
+    console.log(`String: ${line} \n Length: ${line.length}`)
+    if (line.length < 5 || line.length > 50 && (!line.includes(':'))){
+        return false;
+    }
+    
+    // Skip if the line text contains full-stop punctuation
+    if (line.trim().endsWith('.')) return false;
 
     // Skip if line is just numbers (including dots and spaces)
     if (/^[\d\s.]+$/.test(line)) return false;
@@ -74,9 +89,12 @@ function isValidLine(line) {
 ipcMain.handle('process-files', async (event, dirPath) => {
     try {
         const outputDir = path.join(dirPath, 'renamed_files');
-        await fs.ensureDir(outputDir);
 
         const files = await fs.readdir(dirPath);
+
+        if (files.length== 0){
+            return []
+        }
         const results = [];
 
         for (const file of files) {
@@ -91,19 +109,11 @@ ipcMain.handle('process-files', async (event, dirPath) => {
 
                     if (fileExt === '.pdf') {
                         
-                        // let doc = mupdfjs.PDFDocument.openDocument(fs.readFileSync(filePath), "application/pdf");
-                        // let page = new mupdfjs.PDFPage(doc, 0); // returns the first page of the document
-                        // let extractedText = page.getText()
-                        
-                        // // cleanup
-                        // doc.destroy()
-                        // page.destroy()
-                        
                         const dataBuffer = await fs.readFile(filePath);
                         const pdfData = await pdfParse(dataBuffer);
                         extractedText = pdfData.text
                         
-                        console.log(extractedText)
+                        // console.log(extractedText)
 
                         // Split the text into lines
                         const lines = extractedText.split('\n');
@@ -115,17 +125,41 @@ ipcMain.handle('process-files', async (event, dirPath) => {
                             }
                         }
 
-                    } else {
-                        const content = await fs.readFile(filePath, 'utf8');
-                        const lines = extractedText.split('\n');
-
-                        let nextLine = '';
-                        for (let i = 0; i < lines.length; i++) {
-                            if (lines[i].includes('STATEMENT OF ACCOUNT SUMMARY')) {
-                                nextLine = lines[i + 1].trim();
-                                break;
+                        // If PDF is not according to our defined rules then extract the top header looking text and rename with that name
+                        console.log(nextLine)
+                        if (nextLine.length === 0) {
+                            // Find first valid line
+                            firstLine = '';
+                            for (const line of lines) {
+                                if (isValidLine(line)) {
+                                    firstLine = line.substring(0, 100); // Get first 100 characters
+                                    break;
+                                }
                             }
+                            nextLine = firstLine
                         }
+
+                    } else {
+                        const extension = path.extname(filePath);
+                        const errorMessage = `
+                            The file ${extension} format is not processed.
+                            Only PDFs are supported.
+                            Thank you for your patience!
+                        `;
+                        throw new Error(errorMessage)
+                        // const content = await fs.readFile(filePath, 'utf8');
+                        // const lines = content.split('\n')
+                        //                    .map(line => line.trim())
+                        //                    .filter(line => line.length > 0);
+                        // // Find first valid line
+                        // firstLine = '';
+                        // for (const line of lines) {
+                        //     if (isValidLine(line)) {
+                        //         firstLine = line.substring(0, 100); // Get first 100 characters
+                        //         break;
+                        //     }
+                        // }
+                        // nextLine = firstLine;
                     }
 
                     let newFileName;
@@ -149,6 +183,8 @@ ipcMain.handle('process-files', async (event, dirPath) => {
                     //     counter++;
                     // }
 
+                    await fs.ensureDir(outputDir);
+
                     await fs.copy(filePath, finalNewPath);
 
                     results.push({
@@ -159,8 +195,9 @@ ipcMain.handle('process-files', async (event, dirPath) => {
                     });
                 } catch (err) {
                     // Handle PDF parsing errors (common with scanned PDFs)
-                    if (err.message.includes('PDF')) {
+                    if (err.message.includes('PDF') && !err.message.includes('Only PDFs are supported.')) {
                         // If PDF parsing fails, use original filename
+                        await fs.ensureDir(outputDir);
                         const newPath = path.join(outputDir, file);
                         await fs.copy(filePath, newPath);
                         results.push({

@@ -28,28 +28,60 @@ function displayResults(results) {
     const fileList = document.getElementById('fileList');
     fileList.innerHTML = '<h3>Processing Results:</h3>';
 
+    console.log(results)
+    if (results.length===0){
+        console.log('here')
+        const div = document.createElement('div');
+        div.className = 'file-item-fail';
+        const status = document.createElement('p');
+        status.innerHTML = `<strong>Status:</strong> `;
+        const statusSpan = document.createElement('span');
+        statusSpan.className = 'status-failed';
+        statusSpan.textContent = `Failed - Directory is Empty!`; 
+        status.append(statusSpan)
+        div.appendChild(status)  
+        fileList.append(div)
+        return 
+    }
+
     results.forEach(result => {
         const div = document.createElement('div');
-        div.className = 'file-item';
-        
-        if (result.success) {
-            let status = 'Success';
-            if (result.noTextFound) {
-                status = 'No readable text found - Original filename kept';
-            }
-            
-            div.innerHTML = `
-                Original: ${result.originalName}<br>
-                New name: ${result.newName}<br>
-                Status: ${status}
-            `;
-        } else {
-            div.innerHTML = `
-                Original: ${result.originalName}<br>
-                Status: Failed - ${result.error}
-            `;
-        }
 
+        try {
+            div.className = result.noTextFound ? 'file-item-fail': 'file-item';
+        } catch (err) {
+            console.log(`Error occured in accesssing 'noTextFound' attribute`);
+            div.className = 'file-item-fail'
+        }
+        const originalName = document.createElement('p');
+        originalName.innerHTML = `<strong>Original:</strong> ${result.originalName}`;
+        div.appendChild(originalName);
+
+        if (result.success) {
+            const newName = document.createElement('p');
+            newName.innerHTML = `<strong>New name:</strong> ${result.newName}`;
+            div.appendChild(newName);
+
+            const status = document.createElement('p');
+            status.innerHTML = `<strong>Status:</strong> `;
+            const statusSpan = document.createElement('span');
+            statusSpan.className = result.noTextFound ? 'status-warning' : 'status-success';
+            statusSpan.textContent = result.noTextFound
+                ? 'No readable text found - Original filename kept'
+                : 'Success';
+            status.appendChild(statusSpan);
+            div.appendChild(status);
+        } else {
+            div.className = 'file-item-fail'
+            const status = document.createElement('p');
+            status.innerHTML = `<strong>Status:</strong> `;
+            const statusSpan = document.createElement('span');
+            statusSpan.className = 'status-failed';
+            statusSpan.textContent = `Failed - ${result.error}`;
+            status.appendChild(statusSpan);
+            div.appendChild(status);
+        }
+        
         fileList.appendChild(div);
     });
 }
