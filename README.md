@@ -67,7 +67,7 @@ The built executable will be located in the `dist/` directory.
 
 Check out this short demo of the Fine Renamer in action:
 
-![Demo](assets/demo.mp4)
+![Demo](assets/demo_fast.mp4)
 
 ---
 
